@@ -1,10 +1,25 @@
 import cosas.* 
-
+import cuentasBancarias.*
 object casaDePepeYJulian {
     const cosas = []
+    var property cuentaSeleccionada = corriente
 
     method comprar(cosa) {
-        cosas.add(cosa)
+        if (self.puedeComprar(cosa)) {
+            cosas.add(cosa)
+            cuentaSeleccionada.extraer(cosa.precio())
+        } else {
+            self.error("no se puede comprar, saldo insuficiente.")
+        }
+    }
+
+    method puedeComprar(cosa) {
+        const cuenta = conGastos
+        return cuentaSeleccionada == cuenta || cosa.precio() <= cuentaSeleccionada.saldo()
+    }
+
+    method saldoCuentaSeleccionada() {
+        return cuentaSeleccionada.saldo()
     }
 
     method cantidadDeCosasCompradas() {
@@ -89,7 +104,9 @@ object casaDePepeYJulian {
     method cosas() {
         return cosas
     }
-    
+
+// ##############  EJ 2  ###################
+
 
     
 

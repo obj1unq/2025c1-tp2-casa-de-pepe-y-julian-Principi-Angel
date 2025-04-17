@@ -1,3 +1,4 @@
+import cuentasBancarias.*
 import cosas.*
 import casa.*
 
@@ -21,6 +22,15 @@ describe "Casa de Pepe y Julian"{
         assert.notThat(casaDePepeYJulian.malaEpoca())
         assert.that(casaDePepeYJulian.queFaltaComprar([tiraDeAsado, plancha, paqueteDeFideos]) == [tiraDeAsado, paqueteDeFideos])
         assert.that(casaDePepeYJulian.faltaComida())
-        assert.equals(#{electrodomEstico, mueble}, casaDePepeYJulian.categoríasCompradas())
+        assert.equals(#{electrodomestico, mueble}, casaDePepeYJulian.categoríasCompradas())
     }
+
+    test "con cuenta corriente con $1000, se compra una tira de asado y un paquete de fideos, la cuenta queda con $600"{
+        casaDePepeYJulian.cuentaSeleccionada(corriente)
+        casaDePepeYJulian.cuentaSeleccionada().configuracionInicial(1000)
+        casaDePepeYJulian.comprar(tiraDeAsado)
+        casaDePepeYJulian.comprar(paqueteDeFideos)
+        assert.equals(600, casaDePepeYJulian.cuentaSeleccionada().saldo()())
+    }
+
 }

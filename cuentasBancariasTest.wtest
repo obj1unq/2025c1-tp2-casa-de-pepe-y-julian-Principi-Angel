@@ -1,0 +1,27 @@
+import casa.*
+import cuentasBancarias.*
+
+
+describe "cuentas bancarias" {
+  test "cuenta corriente parte con $20, se deposita $1000, queda en $1020, se extrae $50, queda en $970, se intenta extraer $2000 y falla" {
+      corriente.depositar(20)
+      corriente.depositar(1000)
+      assert.equals(1020, corriente.saldo())
+      corriente.extraer(50)
+      assert.equals(970, corriente.saldo())
+      assert.throwsException({ corriente.extraer(2000) })
+  }
+
+  test "cuenta con gastos con $20 de costo de operación, inicia con $500, se deposita $1000, queda en $1480, se extrae $30, queda en $1450, se intenta depositar $2000 y falla, se extraen $2000, queda en $-550" {
+      conGastos.costoDeOperacion(20)      
+      conGastos.configuracionInicial(500)
+      conGastos.depositar(1000)
+      assert.equals(1480, conGastos.saldo())
+      conGastos.extraer(30)
+      assert.equals(1450, conGastos.saldo())
+      assert.throwsException({ conGastos.depositar(2000) })
+      conGastos.extraer(2000)
+      assert.equals(-550, conGastos.saldo())
+  }
+}
+
