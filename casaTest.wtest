@@ -55,7 +55,4 @@ describe "Casa de Pepe y Julian"{
         assert.notThat(casaDePepeYJulian.faltaComida())
         assert.equals(-600, casaDePepeYJulian.saldoCuentaSeleccionada())
     }
-
-
-
 }

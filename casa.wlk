@@ -1,7 +1,7 @@
 import cosas.* 
 import cuentasBancarias.*
 object casaDePepeYJulian {
-    const property cosas = []
+    const cosas = []
     var property cuentaSeleccionada = conGastos
 
     method comprar(cosa) {
@@ -36,14 +36,11 @@ object casaDePepeYJulian {
     } 
 
     method vieneDeComprar(categoria) {
-        self.validarQueSeComproAlgo()
-        return cosas.last().categoria() == categoria 
+        return ! self.estaVaciaLaCasa() && self.ultimaCategoriaComprada() == categoria 
     } 
 
-    method validarQueSeComproAlgo() {
-        if (self.estaVaciaLaCasa()) {
-            self.error("todavía no se compró nada :(")
-        }
+    method ultimaCategoriaComprada() {
+        return cosas.last().categoria()
     }
 
     method estaVaciaLaCasa() {
@@ -65,6 +62,12 @@ object casaDePepeYJulian {
         return cosas.max({ 
             cosa => cosa.precio()
         })
+    }
+
+    method validarQueSeComproAlgo() {
+        if (self.estaVaciaLaCasa()) {
+            self.error("todavía no se compró nada :(")
+        }
     }
 
     method comprados(categoria) {
@@ -109,5 +112,10 @@ object casaDePepeYJulian {
         return cosas.all({ 
             cosa => cosa.categoria()
         }).asSet()
+    }
+
+// =========
+    method cosas() {
+        return cosas
     }
 }
