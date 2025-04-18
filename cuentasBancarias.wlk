@@ -4,12 +4,19 @@ object corriente {
     var configInicial = 0
 
     method configuracionInicial(monto) {
-        if (configInicial == 0) {
-            saldo = monto
-            configInicial = 1
-        } else {
-            self.error("ya se setteó el saldo, solo se puede una vez")
+        self.validarConfigInicial()
+        saldo = monto
+        configInicial = 1   
+    }
+
+    method validarConfigInicial() {
+        if (! self.esConfigInicial()) {
+            self.error("ya se configuró el saldo inicial, solo se puede una vez")
         }
+    }
+
+    method esConfigInicial() {
+        return configInicial == 0
     }
 
     method saldo() {
@@ -38,12 +45,19 @@ object conGastos {
     var property costoDeOperacion = 0
 
     method configuracionInicial(monto) {
-        if (configInicial == 0) {
-            saldo = monto
-            configInicial = 1
-        } else {
-            self.error("ya se setteó el saldo, solo se puede una vez")
+        self.validarConfigInicial()
+        saldo = monto
+        configInicial = 1   
+    }
+
+    method validarConfigInicial() {
+        if (! self.esConfigInicial()) {
+            self.error("ya se configuró el saldo inicial, solo se puede una vez")
         }
+    }
+
+    method esConfigInicial() {
+        return configInicial == 0
     }
 
     method saldo() {
@@ -63,5 +77,14 @@ object conGastos {
 
     method extraer(monto) {
         saldo -= monto
+    }
+}
+
+object banco {
+    var property cuenta = corriente
+    var property procedimiento = {}
+
+    method operar() {
+        procedimiento.apply(cuenta)
     }
 }

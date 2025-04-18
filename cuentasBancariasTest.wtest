@@ -23,5 +23,16 @@ describe "cuentas bancarias" {
       conGastos.extraer(2000)
       assert.equals(-550, conGastos.saldo())
   }
+
+  test "impedir segunda configuración inicial" {
+      banco.cuenta(conGastos)
+      banco.procedimiento ({ cuenta => 
+        cuenta.configuracionInicial(1)
+        cuenta.extraer(10000)  
+      })
+      banco.operar()
+      assert.equals(-9999, conGastos.saldo())
+      assert.throwsException({ conGastos.configuracionInicial(10000) })
+  }
 }
 
