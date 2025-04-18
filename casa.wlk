@@ -1,21 +1,24 @@
 import cosas.* 
 import cuentasBancarias.*
 object casaDePepeYJulian {
-    const cosas = []
-    var property cuentaSeleccionada = corriente
+    const property cosas = []
+    var property cuentaSeleccionada = conGastos
 
     method comprar(cosa) {
-        if (self.puedeComprar(cosa)) {
-            cosas.add(cosa)
-            cuentaSeleccionada.extraer(cosa.precio())
-        } else {
-            self.error("no se puede comprar, saldo insuficiente.")
+        self.validarComprar(cosa)
+        cosas.add(cosa)
+        cuentaSeleccionada.extraer(cosa.precio())
+    }
+
+    method validarComprar(cosa) {
+        if (! self.puedeComprar(cosa)) {    
+            self.error("no se puede comprar, saldo insuficiente en la cuenta corriente.")
         }
     }
 
     method puedeComprar(cosa) {
         const cuenta = conGastos
-        return cuentaSeleccionada == cuenta || cosa.precio() <= cuentaSeleccionada.saldo()
+        return cuentaSeleccionada == cuenta || cosa.precio() <= self.saldoCuentaSeleccionada()
     }
 
     method saldoCuentaSeleccionada() {
@@ -33,12 +36,19 @@ object casaDePepeYJulian {
     } 
 
     method vieneDeComprar(categoria) {
-        return if (cosas.isEmpty()) {
-            self.error("todavía no se compró nada :(")
-        } else {
-            cosas.last().categoria() == categoria
-        }
+        self.validarQueSeComproAlgo()
+        return cosas.last().categoria() == categoria 
     } 
+
+    method validarQueSeComproAlgo() {
+        if (self.estaVaciaLaCasa()) {
+            self.error("todavía no se compró nada :(")
+        }
+    }
+
+    method estaVaciaLaCasa() {
+        return cosas.isEmpty()
+    }
 
     method esDerrochona() {
         return self.importeTotalDeLasCosas() >= 9000
@@ -51,13 +61,10 @@ object casaDePepeYJulian {
     } 
 
     method compraMasCara() {
-        return if (cosas.isEmpty()) {
-            self.error("nada is priceless.")
-        } else {
-            cosas.max({ 
-                cosa => cosa.precio()
+        self.validarQueSeComproAlgo()
+        return cosas.max({ 
+            cosa => cosa.precio()
         })
-        }
     }
 
     method comprados(categoria) {
@@ -84,10 +91,14 @@ object casaDePepeYJulian {
     }
 
     method faltaComida() {
-        return self.cantidadDeComidaComprada().size() < 2
+        return self.cantidadDeComidaComprada() < 2
     }
 
     method cantidadDeComidaComprada() {
+        return self.comidasCompradas().size()
+    }
+
+    method comidasCompradas() {
         const comidaComprada = comida 
         return cosas.filter({ 
             cosa => cosa.categoria() == comidaComprada
@@ -99,26 +110,4 @@ object casaDePepeYJulian {
             cosa => cosa.categoria()
         }).asSet()
     }
-
-// ================================================
-    method cosas() {
-        return cosas
-    }
-
-// ##############  EJ 2  ###################
-
-
-    
-
-
-
-
-    
-
-    
-    
-
-    // method ultimaCosaComprada() {
-    //     return cosas.last()
-    // } 
 }
