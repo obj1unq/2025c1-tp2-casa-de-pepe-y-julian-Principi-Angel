@@ -1,23 +1,6 @@
 import cosas.*
 object corriente {
-    var saldo = 0
-    var configInicial = 0
-
-    method configuracionInicial(monto) {
-        self.validarConfigInicial()
-        saldo = monto
-        configInicial = 1   
-    }
-
-    method validarConfigInicial() {
-        if (! self.esConfigInicial()) {
-            self.error("ya se configuró el saldo inicial, solo se puede una vez")
-        }
-    }
-
-    method esConfigInicial() {
-        return configInicial == 0
-    }
+    var saldo = 1000
 
     method saldo() {
         return saldo
@@ -28,63 +11,49 @@ object corriente {
     }
 
     method extraer(monto) {
-        self.validarSaldoSuficiente(monto)
+        self.validarExtraer(monto)
         saldo -= monto
     }
 
-    method validarSaldoSuficiente(monto) { 
-        if (monto > saldo) {
+    method validarExtraer(monto) { 
+        if (! self.puedeExtraer(monto)) {
             self.error("no hay saldo suficiente para realizar la operación.")
         }
+    }
+
+    method puedeExtraer(monto) {
+        return saldo >= monto 
     }
 }
 
 object conGastos {
     var saldo = 0
-    var configInicial = 0
     var property costoDeOperacion = 0
-
-    method configuracionInicial(monto) {
-        self.validarConfigInicial()
-        saldo = monto
-        configInicial = 1   
-    }
-
-    method validarConfigInicial() {
-        if (! self.esConfigInicial()) {
-            self.error("ya se configuró el saldo inicial, solo se puede una vez")
-        }
-    }
-
-    method esConfigInicial() {
-        return configInicial == 0
-    }
 
     method saldo() {
         return saldo
     }
 
     method depositar(monto) {
-        self.validarOperacion(monto)     
+        self.validarDepositar(monto)     
         saldo += monto - costoDeOperacion
     }
 
-    method validarOperacion(monto) {
-        if (monto > 1000) {
+    method validarDepositar(monto) {
+        if (! self.puedeDepositar(monto)) {
             self.error("no se permite depositar más de $1000. AFIP RES Hornerito.")
         } 
     }
 
+    method puedeDepositar(monto) {
+        return monto <= self.montoMaxDeDeposito()
+    }
+
+    method montoMaxDeDeposito() {
+        return 1000
+    }
+
     method extraer(monto) {
         saldo -= monto
-    }
-}
-
-object banco {
-    var property cuenta = corriente
-    var property procedimiento = {}
-
-    method operar() {
-        procedimiento.apply(cuenta)
     }
 }

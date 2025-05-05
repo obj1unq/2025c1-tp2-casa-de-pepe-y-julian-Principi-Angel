@@ -1,38 +1,39 @@
 import casa.*
 import cuentasBancarias.*
 
-
 describe "cuentas bancarias" {
-  test "cuenta corriente parte con $20, se deposita $1000, queda en $1020, se extrae $50, queda en $970, se intenta extraer $2000 y falla" {
+  test "cuenta corriente con $1000, se deposita $20, queda en $1020, se extrae $50, queda en $970, se intenta extraer $971, falla, se extraen $970 y queda en $0" {
       corriente.depositar(20)
-      corriente.depositar(1000)
       assert.equals(1020, corriente.saldo())
       corriente.extraer(50)
       assert.equals(970, corriente.saldo())
-      assert.throwsException({ corriente.extraer(2000) })
+      assert.throwsException({ corriente.extraer(971) })
+      assert.equals(970, corriente.saldo())
+      corriente.extraer(970)
+      assert.equals(0, corriente.saldo())
   }
 
-  test "cuenta con gastos con $20 de costo de operación, inicia con $500, se deposita $1000, queda en $1480, se extrae $30, queda en $1450, se intenta depositar $2000 y falla, se extraen $2000, queda en $-550" {
-      conGastos.costoDeOperacion(20)      
-      conGastos.configuracionInicial(500)
+  test "cuenta con gastos con $20 de costo de operación, se deposita $1000, queda en $980, se extrae $30, queda en $950, se intenta depositar $2000 y falla, se extraen $2000, queda en $-950" {
+      conGastos.costoDeOperacion(20)  
       conGastos.depositar(1000)
-      assert.equals(1480, conGastos.saldo())
+      assert.equals(980, conGastos.saldo())
       conGastos.extraer(30)
-      assert.equals(1450, conGastos.saldo())
+      assert.equals(950, conGastos.saldo())
       assert.throwsException({ conGastos.depositar(2000) })
+      assert.equals(950, conGastos.saldo())
       conGastos.extraer(2000)
-      assert.equals(-550, conGastos.saldo())
+      assert.equals(-1050, conGastos.saldo())
   }
 
-  test "impedir segunda configuración inicial" {
-      banco.cuenta(conGastos)
-      banco.procedimiento ({ cuenta => 
-        cuenta.configuracionInicial(1)
-        cuenta.extraer(10000)  
-      })
-      banco.operar()
-      assert.equals(-9999, conGastos.saldo())
-      assert.throwsException({ conGastos.configuracionInicial(10000) })
+  test "cuenta con gastos  sin costo de operación, se extrae $1999, falla al intentar depositar $2000, se deposita dos veces $1000 y el saldo queda en $1" {
+      conGastos.extraer(1999)
+      assert.equals(-1999, conGastos.saldo())
+      assert.throwsException({ conGastos.depositar(2000) })
+      assert.equals(-1999, conGastos.saldo())
+      conGastos.depositar(1000)
+      assert.equals(-999, conGastos.saldo())
+      conGastos.depositar(1000)
+      assert.equals(1, conGastos.saldo())
   }
 }
 

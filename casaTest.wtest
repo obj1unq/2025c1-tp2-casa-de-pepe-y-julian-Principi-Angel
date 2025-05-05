@@ -8,7 +8,7 @@ describe "Casa de Pepe y Julian"{
         casaDePepeYJulian.comprar(heladera)
         casaDePepeYJulian.comprar(cama)
         casaDePepeYJulian.comprar(plancha)
-        assert.equals([heladera, cama, plancha], casaDePepeYJulian.cosas())
+        assert.equals([heladera, cama, plancha], casaDePepeYJulian.compras())
         assert.equals(3, casaDePepeYJulian.cantidadDeCosasCompradas())
         assert.that(casaDePepeYJulian.tieneAlgun(electrodomestico))
         assert.that(casaDePepeYJulian.tieneAlgun(mueble))
@@ -16,43 +16,41 @@ describe "Casa de Pepe y Julian"{
         assert.that(casaDePepeYJulian.vieneDeComprar(electrodomestico))
         assert.notThat(casaDePepeYJulian.vieneDeComprar(mueble))
         assert.that(casaDePepeYJulian.esDerrochona())
-        assert.equals(#{heladera, plancha}, casaDePepeYJulian.comprados(electrodomestico).asSet())
-        assert.equals([cama], casaDePepeYJulian.comprados(mueble))
+        assert.equals(#{heladera, plancha}, casaDePepeYJulian.comprados(electrodomestico))
+        assert.equals(#{cama}, casaDePepeYJulian.comprados(mueble))
         assert.that(casaDePepeYJulian.comprados(comida).isEmpty())
         assert.notThat(casaDePepeYJulian.malaEpoca())
-        assert.that(casaDePepeYJulian.queFaltaComprar([tiraDeAsado, plancha, paqueteDeFideos]) == [tiraDeAsado, paqueteDeFideos])
+        assert.equals([tiraDeAsado, paqueteDeFideos], casaDePepeYJulian.queFaltaComprar([tiraDeAsado, plancha, paqueteDeFideos]))
         assert.that(casaDePepeYJulian.faltaComida())
-        assert.equals(#{electrodomestico, mueble}, casaDePepeYJulian.categoríasCompradas())
     }
 
     test "con cuenta corriente con $1000, se compra una tira de asado y un paquete de fideos, la cuenta queda con $600"{
-        casaDePepeYJulian.cuentaSeleccionada(corriente)
-        casaDePepeYJulian.cuentaSeleccionada().configuracionInicial(1000)
+        casaDePepeYJulian.cuenta(corriente)
         casaDePepeYJulian.comprar(tiraDeAsado)
         casaDePepeYJulian.comprar(paqueteDeFideos)
-        assert.equals(600, casaDePepeYJulian.cuentaSeleccionada().saldo())
+        assert.equals(600, corriente.saldo())
     }
 
-    test "cuenta corriente con $10000, se intenta comprar una heladera y falla, cuenta corriente queda en $10000, se pasa a la cuenta con gastos que posee $4000, se logra comprar la heladera y la cuenta queda en -$16000"{
-        casaDePepeYJulian.cuentaSeleccionada(corriente)
-        casaDePepeYJulian.cuentaSeleccionada().configuracionInicial(10000)
+    test "cuenta corriente con $1000, se intenta comprar una heladera y falla, cuenta corriente queda en $1000, se pasa a la cuenta con gastos que posee $0 y tiene un costo de operación de $50, se depositan $4000, se logra comprar la heladera y la cuenta queda en -$16200"{
+        casaDePepeYJulian.cuenta(corriente)
         assert.throwsException({ casaDePepeYJulian.comprar(heladera) })
-        assert.equals(10000, casaDePepeYJulian.saldoCuentaSeleccionada())
-        casaDePepeYJulian.cuentaSeleccionada(conGastos)
-        casaDePepeYJulian.cuentaSeleccionada().configuracionInicial(4000)
-        assert.equals(4000, casaDePepeYJulian.saldoCuentaSeleccionada())
+        assert.equals(1000, corriente.saldo())
+        casaDePepeYJulian.cuenta(conGastos)
+        conGastos.costoDeOperacion(50)
+        conGastos.depositar(1000)
+        conGastos.depositar(1000)
+        conGastos.depositar(1000)
+        conGastos.depositar(1000)
+        assert.equals(3800, conGastos.saldo())
         casaDePepeYJulian.comprar(heladera)
-        assert.equals(-16000, casaDePepeYJulian.saldoCuentaSeleccionada())
+        assert.equals(-16200, conGastos.saldo())
     }
 
-    test "cuenta con gastos inicia en $100 y tiene $100 de costo operativo, se compra dos tiras de asado, la cuenta queda en -$600"{
-        casaDePepeYJulian.cuentaSeleccionada().configuracionInicial(100)
-        casaDePepeYJulian.cuentaSeleccionada().costoDeOperacion(100)
-        assert.equals(100, casaDePepeYJulian.saldoCuentaSeleccionada())
+    test "cuenta con gastos inicia en $0 y tiene $100 de costo operativo, se compra dos tiras de asado, la cuenta queda en -$700"{
+        conGastos.costoDeOperacion(100)
         casaDePepeYJulian.comprar(tiraDeAsado)
-        assert.equals(-250, casaDePepeYJulian.saldoCuentaSeleccionada())
         casaDePepeYJulian.comprar(tiraDeAsado)
-        assert.notThat(casaDePepeYJulian.faltaComida())
-        assert.equals(-600, casaDePepeYJulian.saldoCuentaSeleccionada())
+        assert.equals(2, casaDePepeYJulian.comidasCompradas())
+        assert.equals(-700, conGastos.saldo())
     }
 }

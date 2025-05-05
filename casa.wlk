@@ -2,27 +2,11 @@ import cosas.*
 import cuentasBancarias.*
 object casaDePepeYJulian {
     const cosas = []
-    var property cuentaSeleccionada = conGastos
-
+    var cuenta  = conGastos
+    
     method comprar(cosa) {
-        self.validarComprar(cosa)
         cosas.add(cosa)
-        cuentaSeleccionada.extraer(cosa.precio())
-    }
-
-    method validarComprar(cosa) {
-        if (! self.puedeComprar(cosa)) {    
-            self.error("no se puede comprar, saldo insuficiente en la cuenta corriente.")
-        }
-    }
-
-    method puedeComprar(cosa) {
-        const cuenta = conGastos
-        return cuentaSeleccionada == cuenta || cosa.precio() <= self.saldoCuentaSeleccionada()
-    }
-
-    method saldoCuentaSeleccionada() {
-        return cuentaSeleccionada.saldo()
+        cuenta.extraer(cosa.precio())
     }
 
     method cantidadDeCosasCompradas() {
@@ -31,56 +15,60 @@ object casaDePepeYJulian {
 
     method tieneAlgun(categoria) {
         return cosas.any({
-            cosa => cosa.categoria() == categoria
+            cosa => cosa.esCategoria(categoria)
         })
     } 
 
     method vieneDeComprar(categoria) {
-        return ! self.estaVaciaLaCasa() && self.ultimaCategoriaComprada() == categoria 
+        return ! self.sinCompras() && self.esUltimaCompraDe(categoria) 
     } 
-
-    method ultimaCategoriaComprada() {
-        return cosas.last().categoria()
+    
+    method sinCompras() {
+        return cosas.isEmpty()
+    }
+    
+    method esUltimaCompraDe(categoria) {
+        return self.ultimaCompra().esCategoria(categoria)
     }
 
-    method estaVaciaLaCasa() {
-        return cosas.isEmpty()
+    method ultimaCompra() {
+        return cosas.last()
     }
 
     method esDerrochona() {
-        return self.importeTotalDeLasCosas() >= 9000
+        return self.importeTotalDeLasCosas() >= self.importeLimiteDerroche()
     } 
 
     method importeTotalDeLasCosas() {
         return cosas.sum({
             cosa => cosa.precio()
         })
-    } 
+    }
 
+    method importeLimiteDerroche() {
+        return 9000
+    }
+ 
     method compraMasCara() {
-        self.validarQueSeComproAlgo()
         return cosas.max({ 
             cosa => cosa.precio()
         })
     }
 
-    method validarQueSeComproAlgo() {
-        if (self.estaVaciaLaCasa()) {
-            self.error("todavía no se compró nada :(")
-        }
-    }
-
     method comprados(categoria) {
         return cosas.filter({ 
-            cosa => cosa.categoria() == categoria
-        })
+            cosa => cosa.esCategoria(categoria)
+        }).asSet()
     }
 
     method malaEpoca() {
-        const categoriaMalaEpoca = comida
         return cosas.all({ 
-            cosa => cosa.categoria() == categoriaMalaEpoca
+            cosa => cosa.esCategoria(self.categoriaDeMalaEpoca())
         })
+    }
+
+    method categoriaDeMalaEpoca() {
+        return comida
     }
 
     method queFaltaComprar(lista) {
@@ -94,28 +82,21 @@ object casaDePepeYJulian {
     }
 
     method faltaComida() {
-        return self.cantidadDeComidaComprada() < 2
-    }
-
-    method cantidadDeComidaComprada() {
-        return self.comidasCompradas().size()
+        return self.comidasCompradas() < 2
     }
 
     method comidasCompradas() {
-        const comidaComprada = comida 
-        return cosas.filter({ 
-            cosa => cosa.categoria() == comidaComprada
+        return cosas.count({ 
+            cosa => cosa.esCategoria(comida)
         })
     }
 
-    method categoríasCompradas() {
-        return cosas.all({ 
-            cosa => cosa.categoria()
-        }).asSet()
+    method cuenta(_cuenta) {
+        cuenta = _cuenta
     }
 
 // =========
-    method cosas() {
+    method compras() {
         return cosas
     }
 }
